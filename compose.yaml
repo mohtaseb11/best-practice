@@ -1,0 +1,30 @@
+# Local PostgreSQL for development.
+# Values in ${...} come from the .env file next to this file (see .env.example).
+services:
+  postgres:
+    # Pin the major version so every machine runs the same Postgres.
+    image: postgres:18
+    container_name: best-practice-db
+    # Start again automatically when Docker Desktop starts, unless you stopped it yourself.
+    restart: unless-stopped
+    environment:
+      # The image creates this database and user on first start.
+      # ":?" makes Compose refuse to start if the variable is missing.
+      POSTGRES_DB: ${BEST_PRACTICE_MAIN_DB_NAME:?set BEST_PRACTICE_MAIN_DB_NAME in .env}
+      POSTGRES_USER: ${BEST_PRACTICE_MAIN_DB_USERNAME:?set BEST_PRACTICE_MAIN_DB_USERNAME in .env}
+      POSTGRES_PASSWORD: ${BEST_PRACTICE_MAIN_DB_PASSWORD:?set BEST_PRACTICE_MAIN_DB_PASSWORD in .env}
+    ports:
+      # host-ip:host-port:container-port. Only reachable from this machine, on port 6969.
+      - "127.0.0.1:6969:5432"
+    volumes:
+      # Keep the data in a named volume so it survives removing the container.
+      - postgres-data:/var/lib/postgresql
+    healthcheck:
+      # "$$" passes a literal "$" so the variable is read inside the container.
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  postgres-data:
