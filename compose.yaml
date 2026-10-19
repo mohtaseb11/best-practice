@@ -1,5 +1,5 @@
 # Local PostgreSQL for development.
-# Values in ${...} come from the .env file next to this file (see .env.example).
+# Values in ${...} come from the .env.
 services:
   postgres:
     # Pin the major version so every machine runs the same Postgres.
